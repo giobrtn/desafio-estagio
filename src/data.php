@@ -66,52 +66,35 @@ $google_sheets_api = new GoogleSheetsAPI($api_url);
 // Buscando os dados da planilha
 $colaboradores = $google_sheets_api->fetchData()->values;
 
-// Estruturação de dado geral 
+// Iteração sobre os colaboradores
 foreach ($colaboradores as $row) {
     if (isset($row[1]) && !isset($row[3])) {
+        // Criando objeto Employee com os dados do colaborador
         $employee = new Employee($row[0], $row[1], $row[2]);
+
+        // Calculando idade e anos de empresa
         $age = $employee->calculateAge($currentDate);
         $yearsOfEmployment = $employee->calculateYearsOfEmployment($currentDate);
 
+        // Convertendo datas para objetos DateTime
         $birthDate = DateTime::createFromFormat('d/m/Y', $employee->getBirthDate());
         $birthDate->setDate($currentDate->format('Y'), $birthDate->format('m'), $birthDate->format('d'));
 
         $hireDate = DateTime::createFromFormat('d/m/Y', $employee->getHireDate());
         $hireDate->setDate($currentDate->format('Y'), $hireDate->format('m'), $hireDate->format('d'));
 
+        // Calculando diferenças de datas
         $ageDifference = $currentDate->diff($birthDate);
         $employmentDifference = $currentDate->diff($hireDate);
 
-        $birthdayMessage = '';
-        $anniversaryMessage = '';
 
-        if ($ageDifference->format('%R%a') < 0) {
-            $birthdayMessage = 'The birthday of ' . $employee->getName() . ' has already passed ' . abs($ageDifference->format('%a')) . ' days ago. He/she turned ' . $age . ' years old.';
-        } elseif ($ageDifference->format('%R%a') == 0) {
-            $birthdayMessage = 'Today is the birthday of ' . $employee->getName() . '! He/she is turning ' . $age . ' years old.';
-        } else {
-            $age = $age + 1;
-            $birthdayMessage = 'The birthday of ' . $employee->getName() . ' is in ' . $ageDifference->format('%a') . ' days. He/she will be turning ' . $age . ' years old.';
+        // Verificando se é aniversário do colaborador ou de empresa
+        if ($ageDifference->format('%R%a') == 0) {
+            echo 'Hoje é o aniversário de ' . $employee->getName() . '! Ele(a) está completando ' . $age . ' anos.<br>';
         }
 
-        if ($employmentDifference->format('%R%a') < 0) {
-            $anniversaryMessage = 'The employment anniversary of ' . $employee->getName() . ' has already passed. He/she has been with the company for ' . $yearsOfEmployment . ' years.';
-        } elseif ($employmentDifference->format('%R%a') == 0) {
-            $anniversaryMessage = 'Today is the employment anniversary of ' . $employee->getName() . '! He/she has been with the company for ' . $yearsOfEmployment .  ' years.';
-        } else {
-            $yearsOfEmployment = $yearsOfEmployment + 1;
-            $anniversaryMessage = 'The employment anniversary of ' . $employee->getName() . ' is later this year! He/she will be celebrating ' . $yearsOfEmployment . ' years with the company.';
-        }
-
-        // Check if it's the employee's birthday, work anniversary, both, or neither
-        if ($birthdayMessage && $anniversaryMessage) {
-            echo $birthdayMessage . ' ' . $anniversaryMessage . '<br>';
-        } elseif ($birthdayMessage) {
-            echo $birthdayMessage . ' It is not the employment anniversary of ' . $employee->getName() . '.<br>';
-        } elseif ($anniversaryMessage) {
-            echo $anniversaryMessage . ' It is not the birthday of ' . $employee->getName() . '.<br>';
-        } else {
-            echo 'It is neither the birthday nor the employment anniversary of ' . $employee->getName() . '.<br>';
+        if ($employmentDifference->format('%R%a') == 0) {
+            echo 'Hoje é o aniversário de empresa de ' . $employee->getName() . '! Ele(a) está completando ' . $yearsOfEmployment . ' anos de empresa.<br>';
         }
     }
 }
