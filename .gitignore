@@ -1,2 +1,4 @@
-/vendor/
-.gitignore/
+vendor/
+.gitignore
+composer.json
+composer.lock
