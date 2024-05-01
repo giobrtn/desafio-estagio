@@ -4,12 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Aniversários dos Colaboradores</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 <div class="container">
         <h2>Aniversários dos Colaboradores</h2>
         <?php
-        // Código PHP aqui
+
         // Classe para utilização do API do Sheets
         class GoogleSheetsAPI {
             private $api_url;
@@ -57,16 +58,10 @@
             }
         }
 
-        // Data atual
+
         $currentDate = new DateTime();
-
-        // URL da API do Sheets
         $api_url = "https://sheetdb.io/api/v1/e82thfp1i4kq3";
-
-        // Instanciando a classe GoogleSheetsAPI
         $google_sheets_api = new GoogleSheetsAPI($api_url);
-
-        // Buscando os dados da planilha
         $colaboradores = $google_sheets_api->fetchData()->values;
 
         // Iteração sobre os colaboradores
