@@ -7,6 +7,8 @@
 </head>
 <body>
 <?php
+
+// Classe para utilização do API do Sheets
 class GoogleSheetsAPI {
     private $api_url;
 
@@ -19,6 +21,8 @@ class GoogleSheetsAPI {
         return json_decode($file);
     }
 }
+
+// Classe do Colaborador
 
 class Employee {
     private $name;
@@ -52,11 +56,17 @@ class Employee {
     }
 }
 
+
 $currentDate = new DateTime();
 $api_url = "https://sheetdb.io/api/v1/e82thfp1i4kq3";
+
+// Instanciando a classe GoogleSheetsAPI
 $google_sheets_api = new GoogleSheetsAPI($api_url);
+
+// Buscando os dados da planilha
 $colaboradores = $google_sheets_api->fetchData()->values;
 
+// Estruturação de dado geral 
 foreach ($colaboradores as $row) {
     if (isset($row[1]) && !isset($row[3])) {
         $employee = new Employee($row[0], $row[1], $row[2]);
@@ -72,22 +82,36 @@ foreach ($colaboradores as $row) {
         $ageDifference = $currentDate->diff($birthDate);
         $employmentDifference = $currentDate->diff($hireDate);
 
+        $birthdayMessage = '';
+        $anniversaryMessage = '';
+
         if ($ageDifference->format('%R%a') < 0) {
-            echo 'The birthday of ' . $employee->getName() . ' has already passed ' . abs($ageDifference->format('%a')) . ' days ago. He/she turned ' . $age . ' years old.<br>';
+            $birthdayMessage = 'The birthday of ' . $employee->getName() . ' has already passed ' . abs($ageDifference->format('%a')) . ' days ago. He/she turned ' . $age . ' years old.';
         } elseif ($ageDifference->format('%R%a') == 0) {
-            echo 'Today is the birthday of ' . $employee->getName() . '! He/she is turning ' . $age . ' years old.<br>';
+            $birthdayMessage = 'Today is the birthday of ' . $employee->getName() . '! He/she is turning ' . $age . ' years old.';
         } else {
             $age = $age + 1;
-            echo 'The birthday of ' . $employee->getName() . ' is in ' . $ageDifference->format('%a') . ' days. He/she will be turning ' . $age . ' years old.<br>';
+            $birthdayMessage = 'The birthday of ' . $employee->getName() . ' is in ' . $ageDifference->format('%a') . ' days. He/she will be turning ' . $age . ' years old.';
         }
 
         if ($employmentDifference->format('%R%a') < 0) {
-            echo 'The employment anniversary of ' . $employee->getName() . ' has already passed. He/she has been with the company for ' . $yearsOfEmployment . ' years.<br>';
+            $anniversaryMessage = 'The employment anniversary of ' . $employee->getName() . ' has already passed. He/she has been with the company for ' . $yearsOfEmployment . ' years.';
         } elseif ($employmentDifference->format('%R%a') == 0) {
-            echo 'Today is the employment anniversary of ' . $employee->getName() . '! He/she has been with the company for ' . $yearsOfEmployment .  ' years.<br>';
+            $anniversaryMessage = 'Today is the employment anniversary of ' . $employee->getName() . '! He/she has been with the company for ' . $yearsOfEmployment .  ' years.';
         } else {
             $yearsOfEmployment = $yearsOfEmployment + 1;
-            echo 'The employment anniversary of ' . $employee->getName() . ' is later this year! He/she will be celebrating ' . $yearsOfEmployment . ' years with the company.<br>';
+            $anniversaryMessage = 'The employment anniversary of ' . $employee->getName() . ' is later this year! He/she will be celebrating ' . $yearsOfEmployment . ' years with the company.';
+        }
+
+        // Check if it's the employee's birthday, work anniversary, both, or neither
+        if ($birthdayMessage && $anniversaryMessage) {
+            echo $birthdayMessage . ' ' . $anniversaryMessage . '<br>';
+        } elseif ($birthdayMessage) {
+            echo $birthdayMessage . ' It is not the employment anniversary of ' . $employee->getName() . '.<br>';
+        } elseif ($anniversaryMessage) {
+            echo $anniversaryMessage . ' It is not the birthday of ' . $employee->getName() . '.<br>';
+        } else {
+            echo 'It is neither the birthday nor the employment anniversary of ' . $employee->getName() . '.<br>';
         }
     }
 }
